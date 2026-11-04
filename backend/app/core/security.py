@@ -33,25 +33,38 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return password_hash.verify(plain_password, hashed_password)
 
 
-# Create access token
 def create_access_token(user_id: int):
     expiration_time = datetime.now(timezone.utc) + timedelta(minutes=15)
 
     payload = {
         "sub": str(user_id),
-        "exp": expiration_time,
+        "type": "access",
+        "exp": expiration_time
     }
 
-    token = jwt.encode(
+    return jwt.encode(
         payload,
         SECRET_KEY,
         algorithm=ALGORITHM
     )
 
-    return token
+
+def create_refresh_token(user_id: int):
+    expiration_time = datetime.now(timezone.utc) + timedelta(days=7)
+
+    payload = {
+        "sub": str(user_id),
+        "type": "refresh",
+        "exp": expiration_time
+    }
+
+    return jwt.encode(
+        payload,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
 
 
-# Verify access token
 def verify_access_token(token: str):
     try:
         payload = jwt.decode(
@@ -60,9 +73,10 @@ def verify_access_token(token: str):
             algorithms=[ALGORITHM]
         )
 
-        user_id = payload.get("sub")
+        if payload.get("type") != "access":
+            raise InvalidTokenError("Not an access token")
 
-        if user_id is None:
+        if not payload.get("sub"):
             raise InvalidTokenError("User ID is missing")
 
         return payload
@@ -70,6 +84,29 @@ def verify_access_token(token: str):
     except InvalidTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
+            detail="Invalid or expired access token",
             headers={"WWW-Authenticate": "Bearer"}
+        )
+
+
+def verify_refresh_token(token: str):
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+
+        if payload.get("type") != "refresh":
+            raise InvalidTokenError("Not a refresh token")
+
+        if not payload.get("sub"):
+            raise InvalidTokenError("User ID is missing")
+
+        return payload
+
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired refresh token"
         )
