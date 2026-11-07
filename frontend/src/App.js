@@ -17,6 +17,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ManageTeachers from "./pages/ManageTeachers";
 import ManageStudents from "./pages/ManageStudents"; 
 import ManageClasses from "./pages/ManageClasses";
+import Register from "./pages/Register";
+import VerifyOTP from "./pages/VerifyOTP";
 import "./App.css";
 
 function Navbar() {
@@ -32,6 +34,8 @@ function Navbar() {
 
   const logout = () => {
     localStorage.removeItem("edumanage_user");
+localStorage.removeItem("access_token");
+localStorage.removeItem("refresh_token");
     navigate("/", { replace: true });
   };
 
@@ -63,7 +67,9 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
+<Route path="/verify-otp" element={<VerifyOTP />} />
         <Route
           path="/principal-dashboard"
           element={

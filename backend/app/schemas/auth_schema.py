@@ -21,7 +21,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     phone: str = Field(min_length=10, max_length=15)
     password: str = Field(min_length=8)
-    role: str
+    role: str = Field(pattern="^(student|teacher)$")
 
 
 # OTP verification request

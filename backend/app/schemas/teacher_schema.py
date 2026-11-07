@@ -14,7 +14,7 @@ class TeacherResponse(BaseModel):
     name: str
     email: EmailStr
     phone: str
-    subject: str
-    qualification: str
+    subject: str | None = None
+    qualification: str | None = None
 
     model_config = ConfigDict(from_attributes=True)

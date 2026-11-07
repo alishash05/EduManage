@@ -9,6 +9,7 @@ from app.models.user import User
 from app.models.teacher import Teacher
 from app.core.security import hash_password
 from app.services.redis_service import get_redis_client
+from app.models.student import Student
 
 from app.core.security import (
     hash_password,
@@ -17,6 +18,13 @@ from app.core.security import (
 )
 
 def register_user(db: Session, data):
+
+    #allowing only student and teacher registration
+    if data.role not in ["student", "teacher"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid registration role"
+        )
 
     # 1. Check whether email already exists
     existing_email = db.query(User).filter(
@@ -59,6 +67,8 @@ def register_user(db: Session, data):
         "role": data.role
     }
 
+
+    #for temporary registrashion information
     client.hset(redis_key, mapping=registration_data)
     client.hset(redis_key, "otp", otp)
     client.expire(redis_key, 300)
@@ -120,15 +130,46 @@ def verify_registration_otp(db: Session, email: str, otp: str):
             )
             db.add(new_teacher)
 
+        elif new_user.role == "student":
+
+            new_student = Student(
+                user_id=new_user.id,
+                admission_no=f"TEMP-{new_user.id}",
+                name=new_user.name,
+                email=new_user.email,
+                phone=new_user.phone,
+                class_name="NOT ASSIGNED"
+            )
+
+            db.add(new_student)
+
         db.commit()
         db.refresh(new_user)
-    except IntegrityError:
+#TEMPORARY  COMMENT TILL STUDENT TABLE WORK CORRECTLY
+    # except IntegrityError:
+    #     db.rollback()
+    #     raise HTTPException(
+    #         status_code=409,
+    #         detail="Email or phone number already registered"
+    #     )
+
+    except IntegrityError as e:
         db.rollback()
+
+        print("DATABASE INTEGRITY ERROR:", str(e.orig))
+
         raise HTTPException(
             status_code=409,
-            detail="Email or phone number already registered"
+            detail="Database error while creating user or student"
         )
 
+    except Exception as e:
+        db.rollback()
+
+        print("REGISTRATION ERROR:", repr(e))
+
+        raise
+    
     # 5. Generate tokens after successful registration
     access_token = create_access_token(new_user.id)
     refresh_token = create_refresh_token(new_user.id)

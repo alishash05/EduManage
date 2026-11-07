@@ -1,62 +1,56 @@
+
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 function Login() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+
     setError("");
+    setLoading(true);
 
-    // Temporary demo login.
-    // Replace this with FastAPI authentication later.
-    const demoAccounts = [
-      {
-        username: "principal",
-        password: "Admin@123",
-        role: "principal",
-      },
-      {
-        username: "teacher",
-        password: "Teacher@123",
-        role: "teacher",
-      },
-      {
-        username: "student",
-        password: "Student@123",
-        role: "student",
-      },
-    ];
+    try {
+      const response = await api.loginUser({
+        email: email.trim(),
+        password: password,
+      });
 
-    const account = demoAccounts.find(
-      (user) =>
-        user.username === username.trim() &&
-        user.password === password
-    );
+      // Store authentication tokens
+      localStorage.setItem("access_token", response.access_token);
 
-    if (!account) {
-      setError("Invalid username or password.");
-      return;
-    }
+      if (response.refresh_token) {
+        localStorage.setItem("refresh_token", response.refresh_token);
+      }
 
-    // Demo only: localStorage is not secure authentication.
-    localStorage.setItem(
-      "edumanage_user",
-      JSON.stringify({
-        username: account.username,
-        role: account.role,
-      })
-    );
+      // Store logged-in user details
+      localStorage.setItem(
+        "edumanage_user",
+        JSON.stringify(response.user)
+      );
 
-    if (account.role === "principal") {
-      navigate("/principal-dashboard");
-    } else if (account.role === "teacher") {
-      navigate("/teacher-dashboard");
-    } else {
-      navigate("/student-dashboard");
+      // Navigate according to user role
+      if (response.user.role === "principal") {
+        navigate("/principal-dashboard");
+      } else if (response.user.role === "teacher") {
+        navigate("/teacher-dashboard");
+      } else if (response.user.role === "student") {
+        navigate("/student-dashboard");
+      } else {
+        setError("Invalid user role.");
+      }
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,23 +60,26 @@ function Login() {
         <div className="login-logo">E</div>
 
         <h1>EduManage</h1>
+
         <p className="login-subtitle">
           School Data Management System
         </p>
 
         <form onSubmit={handleLogin}>
-          <label htmlFor="username">Username</label>
+          <label htmlFor="email">Email Address</label>
+
           <input
-            id="username"
-            type="text"
-            placeholder="Enter your username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoComplete="username"
+            id="email"
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
             required
           />
 
           <label htmlFor="password">Password</label>
+
           <input
             id="password"
             type="password"
@@ -93,14 +90,23 @@ function Login() {
             required
           />
 
-          {error && <p className="error-message">{error}</p>}
+          {error && (
+            <p className="error-message">{error}</p>
+          )}
 
-          <button className="login-button" type="submit">
-            Sign In
+          <button
+            className="login-button"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Signing In..." : "Sign In"}
           </button>
         </form>
 
-       
+        <p>
+          Don't have an account?{" "}
+          <Link to="/register">Register</Link>
+        </p>
 
         <p className="login-footer">
           © 2026 EduManage. All rights reserved.

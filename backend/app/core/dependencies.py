@@ -14,6 +14,7 @@ def get_current_user(
     db: Session = Depends(get_db)
 ):
     token = credentials.credentials
+    #here it is decoding the token >>>>> 
 
     # Verify JWT token
     payload = verify_access_token(token)

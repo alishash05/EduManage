@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 
+from fastapi.middleware.cors import CORSMiddleware
 from app.database.connection import Base, engine
-
+from app.core.config import CORS_ORIGINS
 # Import all models
-from app.models import User, Teacher
+from app.models import User, Teacher, Student
 
 # Import routers
 from app.routers.teacher_router import router as teacher_router
@@ -17,6 +18,8 @@ from pydantic import BaseModel,EmailStr
 from fastapi import HTTPException
 from app.services.redis_service import get_redis_client
 
+from app.routers.student_router import router as students_router
+
 from app.routers import otp
 # Create missing database tables
 Base.metadata.create_all(bind=engine)
@@ -28,7 +31,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(teacher_router)
+app.include_router(students_router)
 app.include_router(auth_router)
 app.include_router(otp.router)
 

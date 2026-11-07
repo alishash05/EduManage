@@ -1,32 +1,65 @@
 const API_BASE_URL = "http://127.0.0.1:8000";
 
 async function request(endpoint, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
 
-  const data = await response.json().catch(() => null);
+    const token = localStorage.getItem("access_token");
 
-  if (!response.ok) {
-    const message =
-      data?.detail ||
-      data?.message ||
-      `Request failed with status ${response.status}`;
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
 
-    throw new Error(
-      typeof message === "string" ? message : JSON.stringify(message)
-    );
-  }
+        headers: {
+            "Content-Type": "application/json",
+            ...(token && {
+                Authorization: `Bearer ${token}`,
+            }),
+            ...options.headers,
+        },
+    });
 
-  return data;
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+        const message =
+            data?.detail ||
+            data?.message ||
+            `Request failed with status ${response.status}`;
+
+        throw new Error(
+            typeof message === "string"
+                ? message
+                : JSON.stringify(message)
+        );
+    }
+
+    return data;
 }
 
 const api = {
+  // Authentication APIs
+  registerUser: (user) =>
+    request("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(user),
+    }),
+
+  verifyRegistrationOTP: (otpData) =>
+    request("/auth/verify-registration-otp", {
+      method: "POST",
+      body: JSON.stringify(otpData),
+    }),
+
+  loginUser: (credentials) =>
+    request("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(credentials),
+    }),
+
+  // Teacher APIs
   getTeachers: () => request("/teachers/"),
+
+  //teacher by Ids
+  getTeacherById: (id) => 
+    request(`/teachers/${id}`),
 
   createTeacher: (teacher) =>
     request("/teachers/", {

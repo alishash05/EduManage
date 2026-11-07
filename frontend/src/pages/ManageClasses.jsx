@@ -4,7 +4,7 @@ function ManageClasses() {
   const [classes, setClasses] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [editingId, setEditingId] = useState(null);
+  const [ingId, setingId] = useState(null);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("success");
 
@@ -107,7 +107,7 @@ function ManageClasses() {
 
     const duplicate = classes.some(
       (item) =>
-        item.id !== editingId &&
+        item.id !== ingId &&
         item.className === normalizedClass &&
         item.section === formData.section &&
         item.academicYear.toLowerCase() === normalizedYear.toLowerCase()
@@ -122,7 +122,7 @@ function ManageClasses() {
     }
 
     const classRecord = {
-      id: editingId || Date.now().toString(),
+      id: ingId || Date.now().toString(),
       className: normalizedClass,
       section: formData.section,
       academicYear: normalizedYear,
@@ -132,9 +132,9 @@ function ManageClasses() {
 
     let updatedClasses;
 
-    if (editingId) {
+    if (ingId) {
       updatedClasses = classes.map((item) =>
-        item.id === editingId ? classRecord : item
+        item.id === ingId ? classRecord : item
       );
     } else {
       updatedClasses = [...classes, classRecord];
@@ -142,18 +142,18 @@ function ManageClasses() {
 
     if (saveClasses(updatedClasses)) {
       setFormData(initialForm);
-      setEditingId(null);
+      setingId(null);
 
       showMessage(
-        editingId
+        ingId
           ? "Class updated successfully!"
           : "Class added successfully!"
       );
     }
   }
 
-  // Load a class into the form for editing
-  function handleEdit(classRecord) {
+  // Load a class into the form for ing
+  function handle(classRecord) {
     setFormData({
       className: classRecord.className,
       section: classRecord.section,
@@ -162,7 +162,7 @@ function ManageClasses() {
       roomNumber: classRecord.roomNumber || "",
     });
 
-    setEditingId(classRecord.id);
+    setingId(classRecord.id);
     showMessage("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -178,7 +178,7 @@ function ManageClasses() {
     const updatedClasses = classes.filter((item) => item.id !== id);
 
     if (saveClasses(updatedClasses)) {
-      if (editingId === id) {
+      if (ingId === id) {
         handleCancel();
       }
 
@@ -186,10 +186,10 @@ function ManageClasses() {
     }
   }
 
-  // Cancel editing
+  // Cancel ing
   function handleCancel() {
     setFormData(initialForm);
-    setEditingId(null);
+    setingId(null);
     showMessage("");
   }
 
@@ -237,7 +237,7 @@ function ManageClasses() {
       </div>
 
       <div className="class-form-card">
-        <h2>{editingId ? "Edit Class" : "Add New Class"}</h2>
+        <h2>{ingId ? " Class" : "Add New Class"}</h2>
 
         <form onSubmit={handleSubmit}>
           <div className="class-form-grid">
@@ -357,10 +357,10 @@ function ManageClasses() {
 
           <div className="class-form-actions">
             <button type="submit" className="class-primary-button">
-              {editingId ? "Update Class" : "Add Class"}
+              {ingId ? "Update Class" : "Add Class"}
             </button>
 
-            {editingId && (
+            {ingId && (
               <button
                 type="button"
                 className="class-secondary-button"
@@ -414,10 +414,10 @@ function ManageClasses() {
                       <div className="class-table-actions">
                         <button
                           type="button"
-                          className="class-edit-button"
-                          onClick={() => handleEdit(item)}
+                          className="class--button"
+                          onClick={() => handle(item)}
                         >
-                          Edit
+                          
                         </button>
 
                         <button

@@ -56,7 +56,8 @@ def principal_dashboard(
 @router.get("/{teacher_id}", response_model=TeacherResponse)
 def get_teacher(
 teacher_id: int,
-db: Session = Depends(get_db)
+db: Session = Depends(get_db),
+current_user:User = Depends(role_required("principal"))
 ):
     return get_teacher_by_id(db, teacher_id)
 

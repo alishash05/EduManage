@@ -18,11 +18,13 @@ def generate_otp(data: OTPRequest):
 
     otp = str(secrets.randbelow(900000) + 100000)
 
+    # here we use redis key
     redis_key = f"otp:{data.email.lower()}"
 
+#store otp in in redis key 
     client.set(redis_key, otp, ex=300)
 
-    # Development only: remove this print before production
+    #to check otp in terminal
     print("Generated OTP:", otp)
 
     return {
@@ -38,6 +40,7 @@ def verify_otp(data: OTPVerifyRequest):
     redis_key = f"otp:{data.email.lower()}"
 
     stored_otp = client.get(redis_key)
+    
 
     if stored_otp is None:
         raise HTTPException(
@@ -56,3 +59,4 @@ def verify_otp(data: OTPVerifyRequest):
     return {
         "message": "Email OTP verified successfully"
     }
+

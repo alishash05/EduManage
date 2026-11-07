@@ -21,6 +21,7 @@ def create_teacher(db: Session, teacher_data: TeacherCreate):
         )
 
     new_teacher = Teacher(
+        user_id=user.id,
         name=teacher_data.name,
         email=teacher_data.email,
         phone=teacher_data.phone,
