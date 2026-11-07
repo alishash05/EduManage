@@ -48,6 +48,12 @@ const api = {
       body: JSON.stringify(otpData),
     }),
 
+  resendRegistrationOTP: (data) =>
+  request("/auth/resend-otp", {
+    method: "POST",
+    body: JSON.stringify(data),
+  }),
+
   loginUser: (credentials) =>
     request("/auth/login", {
       method: "POST",

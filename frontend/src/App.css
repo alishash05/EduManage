@@ -790,3 +790,117 @@ input {
     font-size: 23px;
   }
 }
+
+
+/* Register Page */
+
+.register-card {
+  max-width: 430px;
+  padding-top: 25px;
+  padding-bottom: 25px;
+}
+
+.register-heading {
+  font-size: 21px;
+  color: #1e293b;
+  margin: 18px 0;
+  text-align: center;
+}
+
+.register-card form {
+  text-align: left;
+}
+
+.register-card label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.register-card input,
+.register-card select {
+  width: 100%;
+  padding: 11px 12px;
+  margin-bottom: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  box-sizing: border-box;
+  outline: none;
+  font-size: 14px;
+}
+
+.register-card input:focus,
+.register-card select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.register-card .login-button {
+  margin-top: 8px;
+}
+
+.register-card .error-message {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 480px) {
+  .register-card {
+    width: 90%;
+    padding: 22px 18px;
+  }
+}
+
+
+/* OTP Resend Section */
+
+.resend-section {
+  margin-top: 22px;
+  text-align: center;
+}
+
+.resend-section p {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 7px;
+}
+
+.resend-button {
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.resend-button:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.resend-button:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.success-message {
+  background: #dcfce7;
+  color: #166534;
+  padding: 10px;
+  border-radius: 7px;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.otp-back {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.otp-back a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
