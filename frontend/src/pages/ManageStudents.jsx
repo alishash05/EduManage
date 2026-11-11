@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import api from "../services/api";
 
 const STORAGE_KEY = "edumanage_students";
 
@@ -29,10 +30,40 @@ function ManageStudents() {
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showView, setShowView] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
-  }, [students]);
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+
+      const response = await api.getStudents();
+
+      const formattedStudents = response.map((student) => ({
+        id: student.id,
+        admissionNo: student.admission_no,
+        name: student.name,
+        email: student.email,
+        phone: student.phone,
+        dateOfBirth: student.date_of_birth || "",
+        gender: student.gender || "",
+        className: student.class_name || "",
+        section: student.section || "",
+        guardianName: student.guardian_name || "",
+      }));
+
+      setStudents(formattedStudents);
+    } catch (err) {
+      setError(err.message || "Unable to fetch students");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchStudents();
+}, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -142,28 +173,33 @@ function ManageStudents() {
     setEditingId(null);
   };
 
-  const handleEdit = (student) => {
+const handleEdit = async (id) => {
+  try {
+    const student = await api.getStudentById(id);
+
     setFormData({
-      admissionNo: student.admissionNo,
-      name: student.name,
-      email: student.email,
-      phone: student.phone,
-      dateOfBirth: student.dateOfBirth,
-      gender: student.gender,
-      className: student.className,
-      section: student.section,
-      guardianName: student.guardianName,
+      admissionNo: student.admission_no || "",
+      name: student.name || "",
+      email: student.email || "",
+      phone: student.phone || "",
+      dateOfBirth: student.date_of_birth || "",
+      gender: student.gender || "",
+      className: student.class_name || "",
+      section: student.section || "",
+      guardianName: student.guardian_name || "",
     });
 
     setEditingId(student.id);
+    setShowView(false);
+    setSelectedStudent(null);
     setError("");
     setSuccess("");
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (err) {
+    setError(err.message || "Unable to fetch student details");
+  }
+};
 
   const handleDelete = (id) => {
     const confirmed = window.confirm(
@@ -203,6 +239,16 @@ function ManageStudents() {
       student.section,
     ].some((value) => value.toLowerCase().includes(query))
   );
+
+  const handleViewStudent = async (id) => {
+  try {
+    const response = await api.getStudentById(id);
+    setSelectedStudent(response);
+    setShowView(true);
+  } catch (err) {
+    setError(err.message || "Unable to fetch student details");
+  }
+};
 
   return (
     <div className="dashboard-container student-management">
@@ -451,8 +497,14 @@ function ManageStudents() {
             </thead>
 
             <tbody>
-              {filteredStudents.length === 0 ? (
+            {loading ? (
                 <tr>
+                <td colSpan="11" className="empty-table">
+                Loading students...
+                </td>
+                </tr>
+                ) : filteredStudents.length === 0 ? (
+               <tr>
                   <td colSpan="11" className="empty-table">
                     {students.length === 0
                       ? "No students registered yet."
@@ -474,22 +526,32 @@ function ManageStudents() {
                     <td>{student.guardianName}</td>
                     <td>
                       <div className="table-actions">
-                        <button
-                          type="button"
-                          className="edit-button"
-                          onClick={() => handleEdit(student)}
-                        >
-                          Edit
-                        </button>
 
-                        <button
-                          type="button"
-                          className="delete-button"
-                          onClick={() => handleDelete(student.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
+  <button
+    type="button"
+    className="view-button"
+    onClick={() => handleViewStudent(student.id)}
+  >
+    View
+  </button>
+
+  <button
+    type="button"
+    className="edit-button"
+    onClick={() => handleEdit(student.id)}
+  >
+    Edit
+  </button>
+
+  <button
+    type="button"
+    className="delete-button"
+    onClick={() => handleDelete(student.id)}
+  >
+    Delete
+  </button>
+
+</div>
                     </td>
                   </tr>
                 ))

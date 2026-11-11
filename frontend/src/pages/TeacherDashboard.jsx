@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+
 function TeacherDashboard() {
   return (
     <div className="dashboard-container">
@@ -12,6 +13,11 @@ function TeacherDashboard() {
           <h2>Attendance</h2>
           <p>Record attendance for assigned classes.</p>
         </Link>
+
+        <Link to="/manage-students" className="dashboard-card">
+  <h2>Students</h2>
+  <p>View and manage student records.</p>
+</Link>
 
         <Link to="/marks-results" className="dashboard-card">
           <h2>Marks & Results</h2>

@@ -475,34 +475,34 @@ async function handleViewTeacher(id) {
                       <td>
                         <div className="table-actions">
 
-    <button
-        type="button"
-        className="view-button"
-        onClick={() => handleViewTeacher(teacher.id)}
-        disabled={actionLoading}
-    >
-        View
-    </button>
+              <button
+              type="button"
+              className="view-button"
+              onClick={() => handleViewTeacher(teacher.id)}
+              disabled={actionLoading}
+              >
+              View
+              </button>
 
-    <button
-        type="button"
-        className="edit-button"
-        onClick={() => handleEdit(teacher.id)}
-        disabled={actionLoading}
-    >
-        Edit
-    </button>
+              <button
+              type="button"
+              className="edit-button"
+              onClick={() => handleEdit(teacher.id)}
+              disabled={actionLoading}
+              >
+              Edit
+              </button>
 
-    <button
-        type="button"
-        className="delete-button"
-        onClick={() => handleDelete(teacher.id)}
-        disabled={actionLoading || saving}
-    >
-        Delete
-    </button>
+              <button
+              type="button"
+              className="delete-button"
+              onClick={() => handleDelete(teacher.id)}
+              disabled={actionLoading || saving}
+                >
+                Delete
+                </button>
 
-</div>
+                </div>
                       </td>
 
                     </tr>

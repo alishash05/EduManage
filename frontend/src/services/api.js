@@ -83,6 +83,12 @@ const api = {
     request(`/teachers/${id}`, {
       method: "DELETE",
     }),
+
+  // Student APIs
+  getStudents: () => request("/students/"),
+
+  getStudentById: (id) =>
+  request(`/students/${id}`),
 };
 
 export default api;

@@ -64,3 +64,43 @@ def create_student(
         )
 
     return student
+
+@router.get("/", response_model=list[StudentResponse])
+def get_students(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    if current_user.role.lower() not in ["principal","teacher"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only Principal can view all students"
+        )
+
+    students = db.query(Student).order_by(Student.id.desc()).all()
+
+    return students
+
+
+@router.get("/{student_id}", response_model=StudentResponse)
+def get_student_by_id(
+    student_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    if current_user.role.lower() not in ["principal", "teacher"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only Principal can view student details"
+        )
+
+    student = db.query(Student).filter(
+        Student.id == student_id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Student not found"
+        )
+
+    return student

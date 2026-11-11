@@ -1,3 +1,4 @@
+from datetime import date
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -9,7 +10,14 @@ class StudentCreate(BaseModel):
 class StudentResponse(BaseModel):
     id: int
     user_id: int
+    admission_no: str
+    name: str
+    email: str
+    phone: str
+    date_of_birth: date | None = None
+    gender: str | None = None
     class_name: str
-    roll_number: str
+    section: str | None = None
+    guardian_name: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
