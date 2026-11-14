@@ -5,13 +5,15 @@ from app.database.connection import Base, engine
 from app.core.config import CORS_ORIGINS
 # Import all models
 from app.models import User, Teacher, Student
-
+from app.models.otp_verification import OTPVerification
 # Import routers
 from app.routers.teacher_router import router as teacher_router
 from app.routers.auth_router import router as auth_router
 
 #from app.services.valkey_service import get_valkey_client
 
+from contextlib import asynccontextmanager
+from app.core.schedular import start_scheduler, scheduler
 import secrets
 import hmac
 from pydantic import BaseModel,EmailStr
@@ -25,10 +27,21 @@ from app.routers import otp
 Base.metadata.create_all(bind=engine)
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    start_scheduler()
+    print("OTP cleanup scheduler started")
+
+    yield
+
+    scheduler.shutdown()
+    print("OTP cleanup schedular stopped")
+
 app = FastAPI(
     title="EduManage API",
     description="School Data Management System",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(

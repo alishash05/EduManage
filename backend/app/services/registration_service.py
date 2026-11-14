@@ -10,6 +10,8 @@ from app.models.teacher import Teacher
 from app.core.security import hash_password
 from app.services.redis_service import get_redis_client
 from app.models.student import Student
+from app.models.otp_verification import OTPVerification
+from sqlalchemy import func
 
 from app.core.security import (
     hash_password,
@@ -73,6 +75,21 @@ def register_user(db: Session, data):
     client.hset(redis_key, "otp", otp)
     client.expire(redis_key, 300)
 
+    verification = db.query(OTPVerification).filter(
+        OTPVerification.email == data.email.lower()
+    ).first()
+
+    if verification:
+        verification.is_verified = False
+        verification.updated_at = func.now()
+    else:
+        verification = OTPVerification(
+            email=data.email.lower(),
+            is_verified=False
+        )
+        db.add(verification)
+    db.commit()
+
     # Development testing only
     print("Registration OTP:", otp)
 
@@ -106,6 +123,15 @@ def verify_registration_otp(db: Session, email: str, otp: str):
             status_code=400,
             detail="Invalid OTP"
         )
+
+    # Update OTP verifications status
+    verification = db.query(OTPVerification).filter(
+        OTPVerification.email == email.lower()
+    ).first()
+
+    if verification:
+        verification.is_verified = True
+        db.commit()
 
     # 3. Create user object
     new_user = User(

@@ -8,3 +8,5 @@ PyJWT
 pwdlib[argon2]
 python-multipart
 redis
+APScheduler==3.11.3
+
